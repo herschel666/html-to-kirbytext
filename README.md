@@ -62,7 +62,7 @@ const result = h2k(reader(html), customConverter);
 
 ### With the command-line tool
 
-You can either pass in the content via `stdin` by setting the `-/--stdin`-flag:
+You can either pass in the content via `stdin` by setting the `-s/--stdin`-flag:
 
 ```bash
 $ cat my-page.html | bin/h2k -s
