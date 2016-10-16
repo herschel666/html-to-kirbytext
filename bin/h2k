@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+const minimist = require('minimist');
+const chalk = require('chalk');
+const pipe = require('ramda/src/pipe');
+const read = require('../lib/server-reader');
+const convert = require('../lib/').convert;
+
+const argv = minimist(process.argv.slice(2), {
+    string: 'html',
+    boolean: 'stdin',
+    alias: { s: 'stdin'}
+});
+var data = argv.html || '';
+
+const write = process.stdout.write.bind(process.stdout);
+
+const h2k = pipe(read, convert, write);
+
+const displayHelp = () => write(`
+${chalk.yellow.underline('HTML-2-Kirbytext')}
+
+Takes an HTML-string and converts it to Kirby-style markdown.
+
+${chalk.blue.bold('## Pass content via stdin')}
+
+${chalk.grey('->')} ${chalk.red('cat index.html | h2k -s')}
+${chalk.grey('->')} ${chalk.red('cat index.html | h2k --stdin')}
+
+${chalk.blue.bold('## Pass content via option')}
+
+${chalk.grey('->')} ${chalk.red('h2k --html "<h1>Foobar</h1> …"')}
+`);
+
+if (!argv.html && !argv.stdin) {
+    displayHelp();
+    process.exit();
+}
+
+if (argv.stdin) {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', chunk => {
+        data += chunk;
+    });
+    process.stdin.on('end', () => h2k(data));
+} else {
+    h2k(data);
+}
